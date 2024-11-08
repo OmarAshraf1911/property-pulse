@@ -6,8 +6,8 @@ import {
   FaCheck,
   FaMapMarker,
 } from "react-icons/fa";
-import PropertyMap from "./PropertyMap";
-// import PropertyMap from "@/components/PropertyMap";
+import dynamic from "next/dynamic";
+const PropertyMap = dynamic(() => import("./PropertyMap"), { ssr: false });
 
 const PropertyDetails = ({ property }) => {
   return (
