@@ -1,8 +1,9 @@
-"user client";
+"use client";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { FaBookmark } from "react-icons/fa";
+import Spinner from "./Spinner";
 
 const BookmarkButton = ({ property }) => {
   const { data: session } = useSession();
@@ -30,7 +31,7 @@ const BookmarkButton = ({ property }) => {
           setIsBookmarked(data.isBookmarked);
         }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching bookmark status:", error);
       } finally {
         setLoading(false);
       }
@@ -57,12 +58,12 @@ const BookmarkButton = ({ property }) => {
         setIsBookmarked(data.isBookmarked);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to bookmark property:", error);
       toast.error("Failed to bookmark property");
     }
   };
 
-  if (loading) return <p className="text-center">Loading...</p>;
+  if (loading) return <Spinner />;
 
   return isBookmarked ? (
     <button
