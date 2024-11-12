@@ -1,12 +1,17 @@
-import { fetchProperties } from "@/utils/requests";
-import PropertyCard from "@/components/PropertyCard";
 import Link from "next/link";
+import PropertyCard from "./PropertyCard";
+import connectDB from "@/config/database";
+import Property from "@/models/Property";
 
 const HomeProperties = async () => {
-  const properties = await fetchProperties();
-  const recentProperties = properties
-    .sort(() => Math.random() - Math.random())
-    .slice(0, 3);
+  await connectDB();
+
+  // Get the 3 latest properties
+  const recentProperties = await Property.find({})
+    .sort({ createdAt: -1 })
+    .limit(3)
+    .lean();
+
   return (
     <>
       <section className="px-4 py-6">
@@ -15,7 +20,7 @@ const HomeProperties = async () => {
             Recent Properties
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {recentProperties === 0 ? (
+            {recentProperties.length === 0 ? (
               <p>No Properties Found</p>
             ) : (
               recentProperties.map((property) => (
@@ -25,6 +30,7 @@ const HomeProperties = async () => {
           </div>
         </div>
       </section>
+
       <section className="m-auto max-w-lg my-10 px-6">
         <Link
           href="/properties"
