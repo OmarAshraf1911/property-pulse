@@ -1,13 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { toast } from "react-toastify";
 import { FaBookmark } from "react-icons/fa";
-import Spinner from "./Spinner";
+import { useSession } from "next-auth/react";
+import bookmarkProperty from "@/app/actions/bookmarkProperty";
+import checkBookmarkStatus from "@/app/actions/checkBookmarkStatus";
+import { toast } from "react-toastify";
 
 const BookmarkButton = ({ property }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -17,53 +19,27 @@ const BookmarkButton = ({ property }) => {
       return;
     }
 
-    const checkBookmarkStatus = async () => {
-      try {
-        const res = await fetch("/api/bookmarks/check", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ propertyId: property._id }),
-        });
-        if (res.status === 200) {
-          const data = await res.json();
-          setIsBookmarked(data.isBookmarked);
-        }
-      } catch (error) {
-        console.error("Error fetching bookmark status:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkBookmarkStatus();
-  }, [property._id, userId]);
+    checkBookmarkStatus(property._id).then((res) => {
+      if (res.error) toast.error(res.error);
+      if (res.isBookmarked) setIsBookmarked(res.isBookmarked);
+      setLoading(false);
+    });
+  }, [property._id, userId, checkBookmarkStatus]);
 
   const handleClick = async () => {
     if (!userId) {
-      toast.error("You need to be logged in to bookmark properties");
+      toast.error("You need to sign in to bookmark a property");
       return;
     }
-    try {
-      const res = await fetch("/api/bookmarks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ propertyId: property._id }),
-      });
-      if (res.status === 200) {
-        const data = await res.json();
-        toast.success(data.message);
-        setIsBookmarked(data.isBookmarked);
-      }
-    } catch (error) {
-      console.error("Failed to bookmark property:", error);
-      toast.error("Failed to bookmark property");
-    }
+
+    bookmarkProperty(property._id).then((res) => {
+      if (res.error) return toast.error(res.error);
+      setIsBookmarked(res.isBookmarked);
+      toast.success(res.message);
+    });
   };
 
-  if (loading) return <Spinner />;
+  if (loading) return <p className="text-center">Loading...</p>;
 
   return isBookmarked ? (
     <button
@@ -81,5 +57,4 @@ const BookmarkButton = ({ property }) => {
     </button>
   );
 };
-
 export default BookmarkButton;
