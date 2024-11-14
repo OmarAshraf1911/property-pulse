@@ -1,69 +1,46 @@
 "use client";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { FaPaperPlane } from "react-icons/fa";
+import { useEffect } from "react";
+import { useFormState } from "react-dom";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import addMessage from "@/app/actions/addMessage";
+import SubmitMessageButton from "./SubmitMessageButton";
 
 const PropertyContactForm = ({ property }) => {
   const { data: session } = useSession();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [phone, setPhone] = useState("");
-  const [wasSubmitted, setWasSubmitted] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [state, formAction] = useFormState(addMessage, {});
 
-    const data = {
-      name,
-      email,
-      phone,
-      message,
-      recipient: property.owner,
-      property: property._id,
-    };
+  useEffect(() => {
+    if (state.error) toast.error(state.error);
+    if (state.submitted) toast.success("Message sent successfully");
+  }, [state]);
 
-    try {
-      const res = await fetch("/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (res.status === 200) {
-        toast.success("Message sent successfully");
-        setWasSubmitted(true);
-      } else if (res.status === 400 || res.status === 401) {
-        const dataObj = await res.json();
-        toast.error(dataObj.message);
-      } else {
-        toast.error("Error sending form");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to send message");
-    } finally {
-      setName("");
-      setEmail("");
-      setPhone("");
-      setMessage("");
-    }
-  };
+  if (state.submitted) {
+    return (
+      <p className="text-green-500 mb-4">
+        Your message has been sent successfully
+      </p>
+    );
+  }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-6">Contact Property Manager</h3>
-      {!session ? (
-        <p>You must be logged in to send a message</p>
-      ) : wasSubmitted ? (
-        <p className="text-green-500 mb-4">
-          Your message has been sent successfully
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit}>
+    session && (
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-bold mb-6">Contact Property Manager</h3>
+        <form action={formAction}>
+          <input
+            type="hidden"
+            id="property"
+            name="property"
+            defaultValue={property._id}
+          />
+          <input
+            type="hidden"
+            id="recipient"
+            name="recipient"
+            defaultValue={property.owner}
+          />
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -78,8 +55,6 @@ const PropertyContactForm = ({ property }) => {
               type="text"
               placeholder="Enter your name"
               required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -96,8 +71,6 @@ const PropertyContactForm = ({ property }) => {
               type="email"
               placeholder="Enter your email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -113,8 +86,6 @@ const PropertyContactForm = ({ property }) => {
               name="phone"
               type="text"
               placeholder="Enter your phone number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -129,22 +100,14 @@ const PropertyContactForm = ({ property }) => {
               id="message"
               name="message"
               placeholder="Enter your message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
             ></textarea>
           </div>
           <div>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline flex items-center justify-center"
-              type="submit"
-            >
-              <FaPaperPlane className="mr-2" /> Send Message
-            </button>
+            <SubmitMessageButton />
           </div>
         </form>
-      )}
-    </div>
+      </div>
+    )
   );
 };
-
 export default PropertyContactForm;
