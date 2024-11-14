@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "@/assets/styles/globals.css";
 import "photoswipe/dist/photoswipe.css";
+import Head from "next/head";
 
 export const metadata = {
   title: "PropertyPulse",
@@ -18,6 +19,12 @@ const MainLayout = ({ children }) => {
     <AuthProvider>
       <GlobalProvider>
         <html lang="en">
+          <Head>
+            <title>{metadata.title}</title>
+            <meta name="description" content={metadata.description} />
+            <meta name="keywords" content={metadata.keywords} />
+            <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+          </Head>
           <body>
             <Navbar />
             <main>{children}</main>
