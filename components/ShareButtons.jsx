@@ -10,7 +10,7 @@ import {
   EmailIcon,
 } from "react-share";
 
-const ShareButton = ({ property }) => {
+const ShareButtons = ({ property }) => {
   const shareUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/properties/${property._id}`;
 
   return (
@@ -54,4 +54,4 @@ const ShareButton = ({ property }) => {
     </>
   );
 };
-export default ShareButton;
+export default ShareButtons;
