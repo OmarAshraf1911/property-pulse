@@ -1,22 +1,22 @@
 import Navbar from "@/components/Navbar";
-import "@/assets/styles/globals.css";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
+import { GlobalProvider } from "@/context/GlobalContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { GlobalProvider } from "@/context/GlobalContext";
+import "@/assets/styles/globals.css";
 import "photoswipe/dist/photoswipe.css";
 
 export const metadata = {
-  title: "PropertyPulse | Find Perfect Rental",
-  description: "Find your dream rental property ",
-  keywords: "property, rental, search, real estate, find property",
+  title: "PropertyPulse",
+  description: "Find The Perfect Rental Property",
+  keywords: "rental, property, real estate",
 };
 
 const MainLayout = ({ children }) => {
   return (
-    <GlobalProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <GlobalProvider>
         <html lang="en">
           <body>
             <Navbar />
@@ -25,8 +25,8 @@ const MainLayout = ({ children }) => {
             <ToastContainer />
           </body>
         </html>
-      </AuthProvider>
-    </GlobalProvider>
+      </GlobalProvider>
+    </AuthProvider>
   );
 };
 
